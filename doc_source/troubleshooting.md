@@ -6,6 +6,7 @@ Use the following information to help you resolve issues that you might encounte
 + [File System Mount Fails Right Away](#mount-fails-right-away)
 + [File System Mount Hangs and Then Fails with Timeout Error](#mount-hangs-fails-timeout)
 + [Automatic Mounting Fails and the Instance Is Unresponsive](#lustre-automount-fails)
++ [Automatic Mounting Fails with the error port 988 already in use](#lustre-automount-fails-port-error)
 + [File System Mount Using DNS Name Fails](#mount-fails-dns-name)
 + [You can't access your file system](#cant-access-fs)
 + [Troubleshooting a misconfigured linked S3 bucket](#troubleshooting-misconfigured-data-repository)
@@ -46,14 +47,26 @@ Make sure that your security groups for the file system have the inbound rules s
 
 ## Automatic Mounting Fails and the Instance Is Unresponsive<a name="lustre-automount-fails"></a>
 
-
-
 In some cases, automatic mounting might fail for a file system and your Amazon EC2 instance might stop responding\.
 
 This issue can occur if the `_netdev` option wasn't declared\. If `_netdev` is missing, your Amazon EC2 instance can stop responding\. This result is because network file systems need to be initialized after the compute instance starts its networking\.
 
 **Action to Take**  
 If this issue occurs, contact AWS Support\.
+
+## Automatic Mounting Fails with the error port 988 already in use<a name="lustre-automount-fails-port-error"></a>
+
+Automatic mount might file and following errors can be seen in syslog.
+
+```
+LNetError: 3135:0:(lib-socket.c:583:lnet_sock_listen()) Can't create socket: port 988 already in use
+LNetError: 122-1: Can't start acceptor on port 988: port already in use
+```
+
+This error can occur when the instance is configured to mount NFS filesystem. The NFS client normally binds a local reserved port when connecting to a remote NFS file service. When its client port is chosed as the port 988, Lustre client will fail to mount.
+
+To workaround the problem, you may consider using NFS client options `noresvport` and `noauto` where possible.
+
 
 ## File System Mount Using DNS Name Fails<a name="mount-fails-dns-name"></a>
 
